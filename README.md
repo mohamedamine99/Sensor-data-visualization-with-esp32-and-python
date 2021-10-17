@@ -21,7 +21,6 @@
     <li><a href="#results">Results</a></li>
     <li><a href="#conclusion">Conclusion</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgements">Acknowledgements</a></li>
        
   </ol>
 </details>
@@ -146,7 +145,7 @@ Hum_thresh_low_lst = list()
             moy += i
         moy = moy / len(ls)
         return moy
-   ``` 
+ ``` 
     Now to the most important function that adds new data and plots.
   
 ```py  
@@ -207,19 +206,21 @@ Hum_thresh_low_lst = list()
     fig.suptitle('DATE : ' + date, fontsize=16)
     fig.autofmt_xdate()  # to have a nice time format 
 ```
-erzer
+Let's actually animate and display the plots:
+```py 
+anim = FuncAnimation(fig,add_new_data,interval=1700)
+
+plt.show()
+
+```
+
   ## Results:
   
-  ![results](https://github.com/mohamedamine99/Ninja-Fruit-Like-Game-with-hand-gesture-and-opencv/blob/main/results.gif)
+  
   
   ## Conclusion:
-In this project, we successfullty detected and tracked a hand and its landmarks ,using the mediapipe module, and were able to extract data in order to create an interactive hand gesture mini-game with basic gameplay features such as  score , difficulty level and losing conditions.
+In this project, we successfullty collected data from DHT11 sensor send them to the pc via the serial communication and displayed the data  ,using the matplotlib module.
   
   ### Contact:
 * Mail : mohamedamine.benabdeljelil@insat.u-carthage.tn -- mohamedaminebenjalil@yahoo.fr
 * Linked-in profile: https://www.linkedin.com/in/mohamed-amine-ben-abdeljelil-86a41a1a9/
-
-### Acknowledgements:
-* Google developers for making the [Mediapipe hand tracking module](https://google.github.io/mediapipe/solutions/hands)
-* OpenCV team for making the awesome [Opencv Library](https://opencv.org/)
-* [NumPy Team](https://numpy.org/gallery/team.html) for making the [Numpy Library](https://numpy.org/about/)
