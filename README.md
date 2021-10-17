@@ -216,6 +216,11 @@ plt.show()
 
   ## Results:
   
+<p align="center">
+  <img src="https://github.com/mohamedamine99/Sensor-data-visualization-with-esp32-and-python/blob/main/results/results%20dht11%20pyplot.PNG">
+  <img src="https://github.com/mohamedamine99/Sensor-data-visualization-with-esp32-and-python/blob/main/results/pyplot%20dht11.PNG">
+</p>
+
   
   
   ## Conclusion:
