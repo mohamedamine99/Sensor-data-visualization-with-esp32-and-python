@@ -49,9 +49,6 @@ This projects consists of sending DHT11 sensor data acquired on a esp32 board an
 * [Matplotlib](https://matplotlib.org/) : Matplot libs allows to make all types of plots and charts in order to properly and easily visualize data.
 * [DHTNEW](https://github.com/RobTillaart/DHTNew) : **Arduino library** for DHT11 and DHT22 with automatic sensor type recognition.
 
-
-
-
 **NB**: All these packages need to be installed properly.
 
 ## Software implementation:
@@ -103,9 +100,114 @@ Now let's get to our code:
 Let's begin with importing the required packages
 
  ```py
-
-
+ 
+ import matplotlib.pyplot as plt                 # plotting 
+from matplotlib.animation import FuncAnimation   # animating the plots since there are new values added in real-time
+from datetime import date
+from datetime import datetime
+import serial                                    # For serial communication
   ``` 
+  Let's establish a serial communication on `COM4` port with `115200` baud rate and 0.1 sec timeout: 
+  
+  ```py
+esp_board = serial.Serial(port='COM4', baudrate=115200, timeout=.1)
+  ```  
+  Let's setup our plotting variables : 
+   
+  ```py
+  #get the current date in the OCT - 17 - 2020 format
+today = date.today()
+date = today.strftime("%b-%d-%Y")
+print("date = ", date)
+
+#setup a figure containing 2 plots (for humidity and temperature respactively) over one row and 2 columns
+fig , (hum_plt, temp_plt) = plt.subplots(1,2,constrained_layout=False)
+
+#The lists that contains the data 
+dates = list()   # list of time frames for the x-axis
+Hum = list()
+m_Hum= list()    # mean humidity values
+Temp = list()
+m_Temp= list()   # mean temperatures values
+
+# thresholds that will be represented by one dashed line each.
+Temp_thresh_high_lst =list()
+Hum_thresh_high_lst = list()
+Temp_thresh_low_lst = list()
+Hum_thresh_low_lst = list()
+  ```  
+  the below function to calculate the mean value of a list
+  
+ ```py 
+  def mean(ls):
+    moy=0
+    if len(ls)>0:
+        for i in ls:
+            moy += i
+        moy = moy / len(ls)
+        return moy
+   ``` 
+    Now to the most important function that adds new data and plots.
+  
+```py  
+  def add_new_data(x):
+    data = esp_board.readline()                # return data sent by the board as bytes
+    str_data = data.decode('utf-8').rstrip()   # reformats the bytes into a string of characters
+    if (len(str_data) > 0) and (str_data.isnumeric()):
+        Temp_val = float(str_data[0:3]) / 10    # the first 3 chars represent the temperature value
+        Hum_val = int(str_data[3:])             # the last 2 chars represent the Humidity value   
+        print("Temp val = ", Temp_val, "Hum val = ", Hum_val)
+        
+        # Get the current time and append it to the list
+        now = datetime.now()              
+        dates.append(now)
+        
+        # append data to the lists
+        Hum.append(Hum_val)
+        Temp.append(Temp_val)
+        
+        # Set the thresholds values
+        Temp_thresh_high_lst.append(30)
+        Hum_thresh_high_lst.append(60)
+        Temp_thresh_low_lst.append(20)
+        Hum_thresh_low_lst.append(30)
+
+        # Calculate the means of data and append them to the means lists
+        m_hum = mean(Hum)
+        m_Hum.append(m_hum)
+        m_temp = mean(Temp)
+        m_Temp.append(m_temp)
+
+
+    hum_plt.cla()
+    temp_plt.cla()
+
+    # Setting plot titles ans axis labels
+    hum_plt.set_title('Humdity')
+    hum_plt.set_xlabel('Time')
+    hum_plt.set_ylabel('Value')
+
+    temp_plt.set_title('Temperature')
+    temp_plt.set_xlabel('Time')
+    temp_plt.set_ylabel('Value')
+
+    # Plotting the data
+    hum_plt.plot(dates,m_Hum, color='#444444', linestyle=':', label = 'Mean Humidity')
+    temp_plt.plot(dates, m_Temp, color='#dc00d6', linestyle=':', label='Mean Temperature')
+    temp_plt.plot_date(dates, Temp,'r-', label= 'Temperature')
+    hum_plt.plot_date(dates, Hum, 'b-', label='Humidity')
+    # Plotting the threshold lines
+    temp_plt.plot(dates, Temp_thresh_high_lst, color='#f10d0d', linestyle='--', label='High temperature threshold')
+    temp_plt.plot(dates, Temp_thresh_low_lst, color='#f10d0d', linestyle='--', label='Low Temperature threshold')
+    hum_plt.plot(dates, Hum_thresh_high_lst, color='#f10d0d', linestyle='--', label='High Humidity threshold')
+    hum_plt.plot(dates, Hum_thresh_low_lst, color='#f10d0d', linestyle='--', label='Low Humidity threshold')
+    # Adding legends and the title of the figure which is the current date 
+    temp_plt.legend(loc = "upper left",ncol = 1 )
+    hum_plt.legend(loc = "best",ncol = 1)
+    fig.suptitle('DATE : ' + date, fontsize=16)
+    fig.autofmt_xdate()  # to have a nice time format 
+```
+erzer
   ## Results:
   
   ![results](https://github.com/mohamedamine99/Ninja-Fruit-Like-Game-with-hand-gesture-and-opencv/blob/main/results.gif)
